@@ -1,35 +1,43 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button , ScrollView, FlatList} from 'react-native';
+import { StyleSheet, View, Button, FlatList} from 'react-native';
+
+import GoalItem  from './components/GoalItem';
+import GoalInput  from './components/GoalInput';
 
 export default function App() {
-  
-  const [enteredGoal, setEnteredGoal] = useState('');
-  const [courseGoals, seCourseGoals] = useState([]);
+    
+  const [courseGoals, setCourseGoals] = useState([]);
+  const [isAddMode, setIsAddMode] = useState(false);
 
-  const goalInputHandler = (enteredText) => {
-    setEnteredGoal(enteredText);
+  const addGoalHandler = goalTitle => {
+    setCourseGoals(currentGoals => [...courseGoals, {id: Math.random().toString(), value: goalTitle}]);
+    setIsAddMode(false);
   };
 
-  const addGoalHandler = () => {
-    seCourseGoals(currentGoals => [...courseGoals, {id: Math.random().toString(), value: enteredGoal}]);
+  const removeGoalHandler = goalId => {
+    setCourseGoals( currentGoals => {
+      return currentGoals.filter( (goal) => goal.id !== goalId);      
+    });
+  };
+
+  const cancelGoalAdditionHandler = () => {
+    setIsAddMode(false);
   };
 
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput 
-          placeholder="Course Goal" 
-          style={styles.input} 
-          onChangeText={goalInputHandler}
-          value={enteredGoal}
-        />
-        <Button title="ADD" onPress={addGoalHandler} />
-      </View>
+      <Button title="Add new Goal" onPress={ () => setIsAddMode(true)} />
+      <GoalInput visible={isAddMode} onAddGoal= {addGoalHandler} onCancel={cancelGoalAdditionHandler} />
       <FlatList
         keyExtractor={(item, index) => item.id} 
         data={courseGoals}
         renderItem={ itemData => (
-          <View style={styles.listItem}><Text>{itemData.item.value}</Text></View>
+          <GoalItem 
+            id={itemData.item.id} 
+            onDelete={removeGoalHandler} 
+            onCan
+            title={itemData.item.value} 
+          /> 
         )}
       />      
     </View>
@@ -40,23 +48,5 @@ const styles = StyleSheet.create({
   screen: {
     padding: 50
   },
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between', 
-    alignItems: 'center'
-  },
-  input: { 
-    width: '80%', 
-    borderBottomColor: 'black', 
-    borderWidth: 1, 
-    padding: 10
-  },
-  listItem: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: '#ccc',
-    borderColor: 'black',
-    borderWidth: 1,
-
-  }
+  
 });
